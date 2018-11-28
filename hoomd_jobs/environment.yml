@@ -1,0 +1,31 @@
+name: enterprise
+# This is a customized version of the environment used by epoxpy:
+# https://bitbucket.org/cmelab/epoxpy/src/dev/
+# The original had no comments, so all comments here are related
+# to Team Sledgehammer
+channels:
+- mosdef
+- omnia
+- conda-forge
+- glotzer
+- cmelab
+- defaults
+dependencies:
+- python=3.5
+- numpy
+- mbuild=0.8.0
+- freud
+- matplotlib
+# We will build hoomd_dybond ourselves, so exclude it
+#- hoomd_dybond
+- gsd
+- pytest
+- pytest-cov
+- coverage>=4.4
+- pluggy>=0.7
+- coveralls
+- PyYAML
+- signac
+- signac-flow
+# Add some tools for scripts
+- ConfigArgParse

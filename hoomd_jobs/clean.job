@@ -1,0 +1,28 @@
+#!/bin/bash
+
+#SBATCH -J clean-hoomd
+#SBATCH -o log_clean_hoomd.o%j
+#SBATCH -n 28
+#SBATCH --cpus-per-task=1
+#SBATCH -p shortq
+#SBATCH -t 1:00:00
+
+# Abort the script on error
+set -e
+set -o pipefail
+
+# Remove any previously loaded modules
+module purge
+
+# Load modules
+module load slurm
+module load gcc/7.2.0
+module load cmake
+
+# Load the configuration so we know where the source code is
+source ~/enterprise.incl
+
+cd $HOOMD_DIR
+# Make the build directory (no-op if it already exists)
+rm -r build
+echo "Done!"
