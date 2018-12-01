@@ -1,0 +1,43 @@
+image: continuumio/miniconda3
+
+pipelines:
+  default:
+    - step:
+        script: # Modify the commands below to build your repository.
+          - echo "Default pipeline."
+          - ls
+          - conda env create -f environment.yml
+          - source activate hoomd
+          - conda install sphinx git mpich2 numpy cmake pkg-config sqlite
+          - mkdir build
+          - cd build
+          - apt-get update
+          - apt-get install build-essential -y
+          - cmake ../ -DBUILD_CGCMM=OFF -DBUILD_DEM=OFF -DBUILD_HPMC=OFF -DBUILD_METAL=OFF -DBUILD_TESTING=OFF -DSINGLE_PRECISION=ON -DDISABLE_SQLITE=ON
+          - make
+          - export PYTHONPATH=`pwd`
+          - cd ../hoomd/dybond_plugin
+          - pytest
+  branches:
+    master:
+      - step:
+          script:
+            - echo "This script runs only on commit to the master branch."
+            - ls
+    dynamic_bonding:
+      - step:
+          script:
+            - echo "This script runs only on commit to dynamic_bonding branch"
+            - ls
+            - conda env create -f environment.yml
+            - source activate hoomd
+            - conda install sphinx git mpich2 numpy cmake pkg-config sqlite
+            - mkdir build
+            - cd build
+            - apt-get update
+            - apt-get install build-essential -y
+            - cmake ../ -DBUILD_CGCMM=OFF -DBUILD_DEM=OFF -DBUILD_HPMC=OFF -DBUILD_METAL=OFF -DBUILD_TESTING=OFF -DSINGLE_PRECISION=ON -DDISABLE_SQLITE=ON
+            - make
+            - export PYTHONPATH=`pwd`
+            - cd ../hoomd/dybond_plugin
+            - pytest

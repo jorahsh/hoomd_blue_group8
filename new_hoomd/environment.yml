@@ -1,0 +1,14 @@
+name: hoomd
+channels:
+- mosdef
+- omnia
+- conda-forge
+- glotzer
+- defaults
+dependencies:
+- python
+- mbuild
+- freud
+- matplotlib
+- gsd
+- pytest
