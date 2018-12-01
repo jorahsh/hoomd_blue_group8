@@ -1,11 +1,35 @@
-##Useful Knowledge
+##Notes
 
-- m_bond_data = bond data?  
+- m_bond_data = bond data?
+	int getTypeByName()
+	BondType? getTypeByIndex()
+	BondData::members getMembersByIndex()
 - m_nList = NeighborList
 - m_thermo = ComputeThermo
 - m_pdata = particle data?
+	int getTypeByName()
+	int getN() --get number of particles?
+	int getMaximumTag()
 - m_bond_type = bond type array?
 
-#Journal
+- A bond rank is the number of times a particle has been bonded.
 
-This file has so many member variables...
+##Journal
+
+-This file has so many member variables...
+-I feel like I have to spend a lot of time understanding what's going on in the code
+ before I am comfortable deciding on an implementation.
+
+##Description
+-Judging by the way the the code is structured, it appears as though the update()
+ function is being done on a single particle.
+-The function begins by updating the list of neighboring particls.
+-For the calculations needed by the update() function, the finction must define:
+	Data about the particles neighbors. For the function to work, it requires:
+		a number of neighbors array
+		a neighbor list array
+		a head list array
+	Data about the particle: For the function to work, it requires:
+		a position
+		a rtag (a reverse lookup tag)
+		a tag
