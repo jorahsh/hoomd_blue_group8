@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#SBATCH -J compile-hoomd
-#SBATCH -o log_compile_hoomd.o%j
+#SBATCH -J valid-hoomd
+#SBATCH -o log_validate_hoomd.o%j
 #SBATCH -n 28
 #SBATCH --cpus-per-task=1
 #SBATCH -p shortq
@@ -26,7 +26,7 @@ echo "Activating python environment"
 source activate enterprise
 
 # Load the configuration so we know where the source code is
-source ~/enterprise.incl
+source ~/hoomd_blue_group8/enterprise.incl
 echo "Old Python Path: $PYTHONPATH"
 export PYTHONPATH="$PYTHONPATH:${HOOMD_DIR}/build"
 echo "New Python Path: $PYTHONPATH"

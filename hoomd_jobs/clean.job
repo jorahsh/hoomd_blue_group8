@@ -20,7 +20,7 @@ module load gcc/7.2.0
 module load cmake
 
 # Load the configuration so we know where the source code is
-source ~/enterprise.incl
+source ~/hoomd_blue_group8/enterprise.incl
 
 cd $HOOMD_DIR
 # Make the build directory (no-op if it already exists)

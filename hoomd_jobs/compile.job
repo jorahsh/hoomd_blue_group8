@@ -26,7 +26,7 @@ echo "Activating python environment"
 source activate enterprise
 
 # Load the configuration so we know where the source code is
-source ~/enterprise.incl
+source ~/hoomd_blue_group8/enterprise.incl
 
 PATH_TO_PYTHON=$(which python)
 	
