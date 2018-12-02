@@ -12,7 +12,5 @@ module load slurm
 module load anaconda/anaconda3/5.1.0 
 
 echo "Creating anaconda environment"
+conda env remove --name enterprise
 conda env create -f environment.yml
-
-
-

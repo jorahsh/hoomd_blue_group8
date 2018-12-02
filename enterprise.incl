@@ -1,4 +1,4 @@
 PROJECT_DIR=~/hoomd_blue_group8
-HOOMD_DIR=$PROJECT_DIR/new_hoomd_blue
-EPOXPY_DIR=$PROJECT_DIR/new_epoxpy
+HOOMD_DIR=$PROJECT_DIR/hoomd_blue
+EPOXPY_DIR=$PROJECT_DIR/epoxpy
 

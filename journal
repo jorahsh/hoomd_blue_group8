@@ -10,7 +10,7 @@
 	int getTypeByName()
 	int getN() --get number of particles?
 	int getMaximumTag()
-- m_bond_type = bond type array?
+- m_bond_type = map<integer, pair<integer,integer>>
 
 - A bond rank is the number of times a particle has been bonded.
 
@@ -19,6 +19,16 @@
 -This file has so many member variables...
 -I feel like I have to spend a lot of time understanding what's going on in the code
  before I am comfortable deciding on an implementation.
+-We noticed that the epoxpy tests didn't all pass. Sometimes we would actually get a
+ different number of successes.
+-The use of the auto type made it diffucult to see exactly what kinds of data structures
+ we were working with.
+-I feel that the most suitable solution would be to try and speed up even a little chunck of
+ code if we can. We need to find a place in the function that is not efficient, and also is
+ not doing any heavy calucations involving member variables.
+-We should consider a way of speeding up how the algorithm finds a random bondable particle.
+ Right now it picks a random number between 0 and the total number of particles - 1. 
+
 
 ##Description
 -Judging by the way the the code is structured, it appears as though the update()
@@ -33,3 +43,27 @@
 		a position
 		a rtag (a reverse lookup tag)
 		a tag
+
+for each bond in bond types	//iterating over a map<integer, pair<integer,integer>> 
+
+	get the first of the pair
+	get the second of the pair
+
+	get the total number of particles from particle data
+	get the max number of bonds per attempt from particle data
+
+	for each bond in max number of bonds per attempt //this is a count from 0 to max bonds-1
+
+		randomly find a particle between 0 and total - 1 that is bondable
+		once a bondable particle is found, it picks a complementary kind of particle to bond to
+		
+		get the number of neighboring particles
+
+		for each neighbor in number of neighbors //this is 0 to number neighbors-1
+
+			...lots of variables
+
+			if within distance, bondable type, and bondable rank
+				add distance to distances
+				add particle to index to particle to indexes
+				add rank2 to rank2s	
