@@ -1,0 +1,2222 @@
+Currently Loaded Modulefiles:
+ 1) slurm/17.11.8   3) cmake/gcc/3.12.4          
+ 2) gcc/7.2.0       4) anaconda/anaconda3/5.1.0  
+Activating python environment
+Old Python Path: 
+New Python Path: :/home/jhinman/hoomd_blue_group8/hoomd_blue/build
+Moving to epoxpy directory: /home/jhinman/hoomd_blue_group8/epoxpy
+Running pip install .
+Processing /home/jhinman/hoomd_blue_group8/epoxpy
+Building wheels for collected packages: epoxpy
+  Running setup.py bdist_wheel for epoxpy: started
+  Running setup.py bdist_wheel for epoxpy: finished with status 'done'
+  Stored in directory: /tmp/pip-ephem-wheel-cache-gwedme1i/wheels/2a/0e/32/2e46e948ed9d036447d93f1df6bda6eb70510eeefd70b655a0
+Successfully built epoxpy
+Installing collected packages: epoxpy
+  Found existing installation: epoxpy 2.0.2
+    Uninstalling epoxpy-2.0.2:
+      Successfully uninstalled epoxpy-2.0.2
+Successfully installed epoxpy-2.0.2
+Starting tests
+============================= test session starts ==============================
+platform linux -- Python 3.5.5, pytest-3.8.1, py-1.7.0, pluggy-0.8.0 -- /home/jhinman/.conda/envs/enterprise/bin/python
+cachedir: .pytest_cache
+rootdir: /home/jhinman/hoomd_blue_group8/epoxpy, inifile: pytest.ini
+plugins: cov-2.6.0
+collecting ... collected 19 items
+
+tests/test_base_compounds.py::TestBaseCompounds::test_a PASSED           [  5%]
+tests/test_base_compounds.py::TestBaseCompounds::test_b PASSED           [ 10%]
+tests/test_base_compounds.py::TestBaseCompounds::test_c PASSED           [ 15%]
+tests/test_base_compounds.py::TestBaseCompounds::test_c10 PASSED         [ 21%]
+tests/test_base_compounds.py::TestBaseCompounds::test_c10_position PASSED [ 26%]
+tests/test_base_compounds.py::TestBaseCompounds::test_c10_new_position PASSED [ 31%]
+tests/test_base_compounds.py::TestBaseCompounds::test_batch_add PASSED   [ 36%]
+tests/test_base_compounds.py::TestBaseCompounds::test_epoxy_blend_10a_20b_2c10 PASSED [ 42%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dpd_with_enthalpy FAILED [ 47%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_lj_harmonic_with_enthalpy PASSED [ 52%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_regression FAILED [ 57%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_a_type_epoxy_sim_dybond_lj_harmonic_langevin FAILED [ 63%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_lj_harmonic_langevin PASSED [ 68%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_lj_harmonic_npt PASSED [ 73%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_dpdlj FAILED [ 78%]
+tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_dpdfene FAILED [ 84%]
+tests/test_epoxy_sim_wo_bonding.py::TestWOBonding::test_epoxy_sim_wo_bonding FAILED [ 89%]
+tests/test_epoxy_sim_wo_bonding.py::TestWOBonding::test_neat_toughener_lj_harmonic_langevin PASSED [ 94%]
+tests/test_restart.py::TestSimRestart::test_restart FAILED               [100%]
+
+=================================== FAILURES ===================================
+______________ TestDyBondBonding.test_epoxy_sim_dpd_with_enthalpy ______________
+
+self = <test_epoxy_sim_dybond.TestDyBondBonding object at 0x7fff8fe6e080>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dpd_with_enthal0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_epoxy_sim_dpd_with_enthalpy(self, tmpdir):
+        """
+            Here we are testing if set point temperature increases when enthalpy change is enabled for dpd
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        from epoxpy.abc_type_epoxy_simulation import ABCTypeEpoxySimulation
+        import epoxpy.abc_type_epoxy_dpd_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+        import numpy as np
+        # from cme_utils.analyze import bond_dist
+    
+        random.seed(1020)
+    
+        mix_time = 3e2
+        mix_kt = 2.0
+        cure_kt = 2.0
+        time_scale = 100
+        deltaT = 1e-3
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=mix_kt,
+                                                                     initial_time=mix_time)
+        type_A_md_temp_profile.add_state_point(500 * time_scale, cure_kt)
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDSimulation(sim_name,
+                                                  mix_time=mix_time,
+                                                  mix_kt=mix_kt,
+                                                  temp_prof=type_A_md_temp_profile,
+                                                  bond=True,
+                                                  n_mul=2.0,
+                                                  shrink=True,
+                                                  shrink_time=1e2,
+                                                  enable_rxn_enthalpy=True,
+                                                  percent_bonds_per_step=100,
+                                                  bond_period=1,
+                                                  deltaT=deltaT,
+                                                  output_dir=out_dir,
+                                                  use_dybond_plugin=True)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_dybond.py:58: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/abc_type_epoxy_simulation.py:219: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 100.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error allocating GPUArray.
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dpd_with_enthal0/shrunk_freud_bonding
+HOOMD-blue v2.3.0-119-g14c60e5 DOUBLE HPMC_MIXED SSE SSE2 
+Compiled: 12/02/2018
+Copyright 2009-2018 The Regents of the University of Michigan.
+-----
+You are using HOOMD-blue. Please cite the following:
+* J A Anderson, C D Lorenz, and A Travesset. "General purpose molecular dynamics
+  simulations fully implemented on graphics processing units", Journal of
+  Computational Physics 227 (2008) 5342--5359
+* J Glaser, T D Nguyen, J A Anderson, P Liu, F Spiga, J A Millan, D C Morse, and
+  S C Glotzer. "Strong scaling of general-purpose molecular dynamics simulations
+  on GPUs", Computer Physics Communications 192 (2015) 97--107
+-----
+HOOMD-blue is running on the CPU
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+Packing 20 A particles, 40 B particles and 4 C10s ..
+abc_type_epoxy_simulation.py:189  |                  system = hoomd.deprecated.init.read_xml(self.init_file_name, wrap_coordinates=True)
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dpd_with_enthal0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 100 positions at timestep 0
+notice(2): 100 masses
+notice(2): 3 particle types
+notice(2): 36 bonds
+notice(2): 100 charges
+notice(2): Group "all" created containing 100 particles
+Initial box dimension: 3
+abc_type_epoxy_simulation.py:195  |              snapshot = system.take_snapshot(bonds=True)
+['C-C']
+abc_type_epoxy_simulation.py:207  |              system.restore_snapshot(snapshot)
+abc_type_epoxy_dpd_simulation.py:057  |              nl = md.nlist.cell()
+abc_type_epoxy_dpd_simulation.py:060  |          nl.reset_exclusions(exclusions=[]);
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 100
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 25.0
+self.AB_interaction 35.0
+self.AC_interaction 35.0
+self.BC_interaction 35.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+abc_type_epoxy_dpd_simulation.py:089  |          harmonic = md.bond.harmonic()
+abc_type_epoxy_dpd_simulation.py:091  |              harmonic.bond_coeff.set('A-B', k=self.AB_bond_const, r0=self.AB_bond_dist)
+abc_type_epoxy_dpd_simulation.py:093  |              harmonic.bond_coeff.set('C-C', k=self.CC_bond_const, r0=self.CC_bond_dist)
+abc_type_epoxy_dpd_simulation.py:094  |          self.dpd = md.pair.dpd(r_cut=1.0, nlist=self.nl, kT=temperature, seed=123456)
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+abc_type_epoxy_dpd_simulation.py:095  |          self.dpd.pair_coeff.set('A', 'A', A=self.AA_interaction, gamma=self.gamma)
+abc_type_epoxy_dpd_simulation.py:096  |          self.dpd.pair_coeff.set('B', 'B', A=self.AA_interaction, gamma=self.gamma)
+abc_type_epoxy_dpd_simulation.py:097  |          self.dpd.pair_coeff.set('C', 'C', A=self.AA_interaction, gamma=self.gamma)
+abc_type_epoxy_dpd_simulation.py:099  |          self.dpd.pair_coeff.set('A', 'B', A=self.AB_interaction, gamma=self.gamma)
+abc_type_epoxy_dpd_simulation.py:100  |          self.dpd.pair_coeff.set('A', 'C', A=self.AC_interaction, gamma=self.gamma)
+abc_type_epoxy_dpd_simulation.py:101  |          self.dpd.pair_coeff.set('B', 'C', A=self.BC_interaction, gamma=self.gamma)
+abc_type_epoxy_simulation.py:214  |          md.integrate.mode_standard(dt=self.mix_dt)
+abc_type_epoxy_simulation.py:179  |              mix_box = mb.packing.fill_box([A(), B(), C10()],
+                                          [self.num_a, self.num_b, self.num_c10],
+                                          box=box)  # ,overlap=0.5)
+
+            if self.init_file_name.endswith('.hoomdxml'):
+                mix_box.save(self.init_file_name, overwrite=True, ref_distance=.1)
+            elif self.init_file_name.endswith('.gsd'):
+                mix_box.save(self.init_file_name, write_ff=False, overwrite=True)
+
+            if self.init_file_name.endswith('.hoomdxml'):
+                system = hoomd.deprecated.init.read_xml(self.init_file_name, wrap_coordinates=True)
+            elif self.init_file_name.endswith('.gsd'):
+                system = hoomd.init.read_gsd(self.init_file_name)
+
+            print('Initial box dimension: {}'.format(system.box.dimensions))
+
+            snapshot = system.take_snapshot(bonds=True)
+            for p_id in range(snapshot.particles.N):
+                p_types = snapshot.particles.types
+                p_type = p_types[snapshot.particles.typeid[p_id]]
+                if p_type == 'A':
+                    snapshot.particles.mass[p_id] = A.mass
+                if p_type == 'B':
+                    snapshot.particles.mass[p_id] = B.mass
+                if p_type == 'C':
+                    snapshot.particles.mass[p_id] = C.mass
+            print(snapshot.bonds.types)
+            snapshot.bonds.types = ['C-C', 'A-B']
+            system.restore_snapshot(snapshot)
+
+        self.nl = self.get_non_bonded_neighbourlist()
+        if self.nl is None:
+            raise Exception('Neighbourlist is not set')
+        self.setup_force_fields(stage=cmn.Stages.MIXING)
+        size_variant = variant.linear_interp([(0, system.box.Lx), (self.shrink_time, desired_box_dim)])
+        md.integrate.mode_standard(dt=self.mix_dt)
+        md.integrate.langevin(group=hoomd.group.all(),
+abc_type_epoxy_simulation.py:000  |  from epoxpy.epoxy_simulation import EpoxySimulation
+from epoxpy.lib import A, B, C, C10
+import hoomd
+import hoomd.dybond_plugin as db
+from hoomd import md
+import os
+import numpy as np
+from abc import ABCMeta, abstractmethod
+from collections import Counter
+import epoxpy.common as cmn
+from hoomd import variant
+import mbuild as mb
+import epoxpy.init as my_init
+from epoxpy.utils import Angles
+
+
+class ABCTypeEpoxySimulation(EpoxySimulation, metaclass=ABCMeta):
+    """Simulations class for setting initial condition and force field specific to the ABC coarse grained Epoxy blend.
+          This simulation consists of three particle types (A, B and C). A, B and C particles are created in the
+          ratio 10, 20 and 2 by default
+          The force fields used are Dissipative Particle Dynamics (DPD) and Harmonic potential
+
+          sim_name : name of simulation
+          mix_time : number of time steps to run the equilibration (NVE simulation to get a nicely "shaken" phase)
+          md_time  : number of time steps to run the molecular dynamics simulation (NVE)
+          mix_kt   : temperature at which the mixing should be performed (during this time, we do an NVT)
+          temp_prof: Dictionary of temperature and time which specifies the temperature profile to maintain during the
+                     md_time. If md_time exceeds the last time step mentioned in the temp_prof, the last temperature is
+                     maintained. If md_time is lesser than the last time step in the profile, the simulation ends without
+                     completing the prescribed profile.
+          log_write: time interval with which to write the log file
+          dcd_write: time interval with which to write the dcd file
+          num_a    : number of A particles created.
+          num_b    : number of B particles created.
+          num_C    : number of C particles created.
+          n_mul    : multiplying factor for the number of A, B and C particles to be created.
+          gamma    : diffusive drag coefficient
+          stop_after_percent: stops the dybond plugin after reaching this cure percent
+          percent_bonds_per_step: percentage of possible bonds that will be made per bond_period timesteps
+          AB_bond_const: the harmonic bond coefficient used for AB bonds
+          AB_bond_dist:  the equilibrium bond distance for AB
+          CC_bond_const: the harmonic bond coefficient used for CC bonds
+          CC_bond_dist:  the equilibrium bond distance for CC
+          CC_bond_angle_const: the cosine squared bond angle coefficient used for CC bonds
+          CC_bond_angle:  the equilibrium bond angle for CC in degrees
+          output_dir: default is the working directory
+          bond     : boolean value denoting whether to run the bonding routine for A's and B's
+          bond_period: time interval between calls to the bonding routine
+       """
+
+    def __init__(self,
+                 sim_name,
+                 mix_time,
+                 mix_kt,
+                 temp_prof,
+                 num_a=10,
+                 num_b=20,
+                 num_c10=2,
+                 n_mul=1.0,
+                 gamma=4.5,
+                 stop_after_percent=100.0,
+                 percent_bonds_per_step=0.0025,
+                 AB_bond_const=100,
+                 CC_bond_const=100,
+                 AB_bond_dist=1,
+                 CC_bond_dist=1,
+                 shrink_time=1e6,
+                 shrinkT=2.0,
+                 CC_bond_angle=None,
+                 CC_bond_angle_const=None,
+                 max_a_bonds=4,
+                 max_b_bonds=2,
+                 *args,
+                 **kwargs):
+        EpoxySimulation.__init__(self,
+                                 sim_name,
+                                 mix_time,
+                                 mix_kt,
+                                 temp_prof,
+                                 *args,
+                                 **kwargs)
+        self.num_a = int(num_a * n_mul)
+        self.num_b = int(num_b * n_mul)
+        self.num_c10 = int(num_c10 * n_mul)
+        if self.num_c10 < 1:
+            self.num_c10 = 1  # we throw in one toughener to allow using bonded potentials
+        self.max_a_bonds = max_a_bonds
+        self.max_b_bonds = max_b_bonds
+        self.n_mul = n_mul
+        self.group_a = None
+        self.group_b = None
+        self.group_c = None
+        self.AB_bond_const=AB_bond_const
+        self.CC_bond_const=CC_bond_const
+        self.AB_bond_dist=AB_bond_dist
+        self.CC_bond_dist=CC_bond_dist
+        self.CC_bond_angle=CC_bond_angle
+        self.CC_bond_angle_const=CC_bond_angle_const
+        self.gamma = gamma
+        self.stop_after_percent = stop_after_percent
+        self.percent_bonds_per_step = percent_bonds_per_step
+        self.shrink_time = shrink_time
+        self.shrinkT = shrinkT
+
+        if self.bond:
+            total_a_bonds = self.num_a*self.max_a_bonds
+            total_b_bonds = self.num_b*self.max_b_bonds
+            if total_a_bonds != total_b_bonds:
+                print('ERROR: total_a_bonds:{}, total_b_bonds:{}'.format(total_a_bonds,total_b_bonds))
+                print('ERROR: num_a:{}, num_b:{}, max_a_bonds:{},max_b_bonds:{}'.format(self.num_a,
+                                                                                        self.num_b,
+                                                                                        self.max_a_bonds,
+                                                                                        self.max_b_bonds))
+                raise ValueError('ABCTypeEpoxySimulation has a non stoichiometric configuration.\
+                                  Please check num_a, max_a_bonds,num_b and max_b_bonds')
+
+    def get_log_quantities(self):
+        log_quantities = super().get_log_quantities()
+        if self.dybond_updater is not None:
+            log_quantities.append("bond_percent(A-B)")
+            log_quantities.append("bonds_per_step(A-B)")
+        return log_quantities
+
+    def get_msd_groups(self):
+        self.group_a = hoomd.group.type(name='a-particles', type='A')
+        self.group_b = hoomd.group.type(name='b-particles', type='B')
+        self.group_c = hoomd.group.type(name='c-particles', type='C')
+        msd_groups = [self.group_a, self.group_b, self.group_c]
+        return msd_groups
+
+    def get_system_from_file(self, file_path, use_time_step_from_file):
+        if use_time_step_from_file:
+            time_step = None
+        else:
+            time_step = 0  # start simulation from start.
+        if file_path.endswith('.hoomdxml'):
+            system = hoomd.deprecated.init.read_xml(file_path, time_step=time_step, wrap_coordinates=True)
+        elif file_path.endswith('.gsd'):
+            #raise ValueError('Reading the most recent frame from gsd file is not yet implemented!')
+            system = hoomd.init.read_gsd(file_path, frame=-1)
+        else:
+            raise ValueError('No such file as {} exist on disk!'.format(file_path))
+        return system
+
+    def initialize_system_from_file(self, file_path, use_time_step_from_file=True):
+        self.system = self.get_system_from_file(file_path, use_time_step_from_file)
+        if self.system is None:
+            raise ValueError('get_system_from_file did not return a valid system object!')
+        snapshot = self.system.take_snapshot(bonds=True)
+        snapshot.bonds.types = ['C-C', 'A-B']  # this information is not stored in the hoomdxml. So need to add it in.
+        self.system.restore_snapshot(snapshot)
+
+    def set_initial_structure(self):
+        print('========INITIAIZING STRUCTURE==========')
+        desired_box_volume = ((A.mass*self.num_a) + (B.mass*self.num_b) + (C10.mass*self.num_c10)) / self.density
+        desired_box_dim = (desired_box_volume ** (1./3.))
+        reduced_density = self.density/10
+        ex_box_vol = ((A.mass * self.num_a) + (B.mass * self.num_b) + (C10.mass * self.num_c10)) / reduced_density
+        expanded_box_dim = (ex_box_vol ** (1. / 3.))
+        half_L = expanded_box_dim/2
+        box = mb.Box(mins=[-half_L, -half_L, -half_L], maxs=[half_L, half_L, half_L])
+        if self.old_init:
+            print("\n\n ===USING OLD INIT=== \n\n")
+            As = my_init.Bead(btype="A", mass=A.mass)
+            Bs = my_init.Bead(btype="B", mass=B.mass)
+            C10s = my_init.PolyBead(btype="C", mass=1.0, N=10)# Hardcode C10, with mon-mass 1.0
+            snap = my_init.init_system({As: int(self.num_a),
+                                        Bs: int(self.num_b),
+                                        C10s: int(self.num_c10)},
+                                       self.density/10)
+            system = hoomd.init.read_snapshot(snap)
+        else:
+            print("\n\n ===USING MBUILD INIT=== \n\n")
+            if self.shrink is False:
+                print('shrink=False is deprecated.')
+            print('Packing {} A particles, {} B particles and {} C10s ..'.format(self.num_a,
+                                                                                 self.num_b,
+                                                                                 self.num_c10))
+            mix_box = mb.packing.fill_box([A(), B(), C10()],
+                                          [self.num_a, self.num_b, self.num_c10],
+                                          box=box)  # ,overlap=0.5)
+
+            if self.init_file_name.endswith('.hoomdxml'):
+                mix_box.save(self.init_file_name, overwrite=True, ref_distance=.1)
+            elif self.init_file_name.endswith('.gsd'):
+                mix_box.save(self.init_file_name, write_ff=False, overwrite=True)
+
+            if self.init_file_name.endswith('.hoomdxml'):
+                system = hoomd.deprecated.init.read_xml(self.init_file_name, wrap_coordinates=True)
+            elif self.init_file_name.endswith('.gsd'):
+                system = hoomd.init.read_gsd(self.init_file_name)
+
+            print('Initial box dimension: {}'.format(system.box.dimensions))
+
+            snapshot = system.take_snapshot(bonds=True)
+            for p_id in range(snapshot.particles.N):
+                p_types = snapshot.particles.types
+                p_type = p_types[snapshot.particles.typeid[p_id]]
+                if p_type == 'A':
+                    snapshot.particles.mass[p_id] = A.mass
+                if p_type == 'B':
+                    snapshot.particles.mass[p_id] = B.mass
+                if p_type == 'C':
+                    snapshot.particles.mass[p_id] = C.mass
+            print(snapshot.bonds.types)
+            snapshot.bonds.types = ['C-C', 'A-B']
+            system.restore_snapshot(snapshot)
+
+        self.nl = self.get_non_bonded_neighbourlist()
+        if self.nl is None:
+            raise Exception('Neighbourlist is not set')
+        self.setup_force_fields(stage=cmn.Stages.MIXING)
+        size_variant = variant.linear_interp([(0, system.box.Lx), (self.shrink_time, desired_box_dim)])
+        md.integrate.mode_standard(dt=self.mix_dt)
+        md.integrate.langevin(group=hoomd.group.all(),
+                              kT=self.shrinkT,
+                              seed=1223445)  # self.seed)
+notice(2): integrate.langevin/bd is using specified gamma values
+abc_type_epoxy_simulation.py:218  |          hoomd.update.box_resize(L=size_variant)
+abc_type_epoxy_simulation.py:219  |          hoomd.run(self.shrink_time)
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: Error allocating aligned memory
+______________ TestDyBondBonding.test_epoxy_sim_dybond_regression ______________
+
+self = <test_epoxy_sim_dybond.TestDyBondBonding object at 0x7fffe824dc50>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_regressi0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_epoxy_sim_dybond_regression(self,  tmpdir):
+        """
+            Here we are doing regression testing for the new bonding routine that operates and the mbuild initial structure
+            whose volume is shrunk to a density of 3.0
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        from epoxpy.abc_type_epoxy_simulation import ABCTypeEpoxySimulation
+        import epoxpy.abc_type_epoxy_dpd_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+        import numpy as np
+        #from cme_utils.analyze import bond_dist
+    
+        random.seed(1020)
+    
+        mix_time = 3e2
+        mix_kt = 2.0
+        cure_kt = 2.0
+        time_scale = 100
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=mix_kt, initial_time=mix_time)
+        type_A_md_temp_profile.add_state_point(500 * time_scale, cure_kt)
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDSimulation(sim_name, mix_time=mix_time, mix_kt=mix_kt,
+                                               temp_prof=type_A_md_temp_profile,
+                                               bond=True, n_mul=2.0, shrink=True,
+                                               shrink_time=1e2,
+                                               output_dir=out_dir,
+                                               use_dybond_plugin=True)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_dybond.py:212: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/abc_type_epoxy_simulation.py:219: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 100.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error allocating GPUArray.
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_regressi0/shrunk_freud_bonding
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+Packing 20 A particles, 40 B particles and 4 C10s ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_regressi0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 100 positions at timestep 0
+notice(2): 100 masses
+notice(2): 3 particle types
+notice(2): 36 bonds
+notice(2): 100 charges
+notice(2): Group "all" created containing 100 particles
+Initial box dimension: 3
+['C-C']
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 100
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 25.0
+self.AB_interaction 35.0
+self.AC_interaction 35.0
+self.BC_interaction 35.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+notice(2): integrate.langevin/bd is using specified gamma values
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: Error allocating aligned memory
+_____ TestDyBondBonding.test_a_type_epoxy_sim_dybond_lj_harmonic_langevin ______
+
+self = <test_epoxy_sim_dybond.TestDyBondBonding object at 0x7fffe8608588>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_a_type_epoxy_sim_dybond_l0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_a_type_epoxy_sim_dybond_lj_harmonic_langevin(self,  tmpdir):
+        """
+            Here we are doing regression testing for the new bonding routine that operates and the mbuild initial structure
+            whose volume is shrunk to a density of 1.0
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        import epoxpy.a_type_epoxy_lj_harmonic_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+        import numpy as np
+    
+        random.seed(1020)
+    
+        mix_time = 1e3
+        mix_kt = 2.0
+        cure_kt = 1.3
+        cure_time = 1e4
+        n_mol = 5
+    
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=cure_kt)
+        type_A_md_temp_profile.add_state_point(cure_time, cure_kt)
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ATypeEpoxyLJHarmonicSimulation(sim_name,
+                                                       mix_time=mix_time,
+                                                       mix_kt=mix_kt,
+                                                       temp_prof=type_A_md_temp_profile,
+                                                       bond=True, n_mul=n_mol, shrink=True,
+                                                       shrink_time=1e4,
+                                                       mix_dt=1e-4,
+                                                       md_dt=1e-2,
+                                                       output_dir=out_dir,
+                                                       use_dybond_plugin=True,
+                                                       density=0.01)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_dybond.py:284: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/a_type_epoxy_lj_harmonic_simulation.py:116: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 10000.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error allocating GPUArray.
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+kwargs passed into ABCTypeEpoxySimulation: {'density': 0.01, 'use_dybond_plugin': True, 'shrink': True, 'mix_dt': 0.0001, 'bond': True, 'md_dt': 0.01, 'output_dir': '/tmp/pytest-of-jhinman/pytest-22/test_a_type_epoxy_sim_dybond_l0/shrunk_freud_bonding'}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_a_type_epoxy_sim_dybond_l0/shrunk_freud_bonding
+========INITIAIZING FOR LJ==========
+Packing 5 A particles ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_a_type_epoxy_sim_dybond_l0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 5 positions at timestep 0
+notice(2): 5 masses
+notice(2): 1 particle types
+notice(2): 5 charges
+notice(2): Group "all" created containing 5 particles
+Initial box dimension: 3
+[]
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 5
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.AA_bond_const 100
+self.AA_interaction 1.0
+self.gamma 4.5
+notice(2): integrate.langevin/bd is using specified gamma values
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 3
+notice(2): Particles with 1 exclusions             : 2
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: Error allocating aligned memory
+________________ TestDyBondBonding.test_epoxy_sim_dybond_dpdlj _________________
+
+self = <test_epoxy_sim_dybond.TestDyBondBonding object at 0x7fffe838d128>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_epoxy_sim_dybond_dpdlj(self,  tmpdir):
+        """
+            Here we are doing regression testing for the new bonding routine that operates and the mbuild initial structure
+            whose volume is shrunk to a density of 3.0
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        from epoxpy.abc_type_epoxy_simulation import ABCTypeEpoxySimulation
+        import epoxpy.abc_type_epoxy_dpdlj_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+        import numpy as np
+    
+        random.seed(1020)
+    
+        mix_time = 1e3
+        mix_kt = 2.0
+        cure_kt = 2.0
+        time_scale = 100
+        n_mul = 6.0
+        n_part = n_mul*50
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=mix_kt, initial_time=mix_time)
+        type_A_md_temp_profile.add_state_point(500 * time_scale, cure_kt)
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDLJSimulation(sim_name, mix_time=mix_time, mix_kt=mix_kt,
+                                               temp_prof=type_A_md_temp_profile,
+                                               bond=True, n_mul=n_mul, shrink=True,
+                                               shrink_time=5e4,
+                                               mix_dt=1e-4,
+                                               md_dt=1e-2,
+                                               output_dir=out_dir,
+                                               use_dybond_plugin=True)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_dybond.py:485: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:367: in execute
+    self.run()
+epoxpy/epoxy_simulation.py:354: in run
+    self.run_md()
+epoxpy/epoxy_simulation.py:258: in run_md
+    hoomd.run_upto(md_time+1)
+../hoomd_blue/build/hoomd/__init__.py:235: in run_upto
+    run(n_steps, **keywords);
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 50001, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error updating neighborlist
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+Packing 60 A particles, 120 B particles and 12 C10s ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 300 positions at timestep 0
+notice(2): 300 masses
+notice(2): 3 particle types
+notice(2): 108 bonds
+notice(2): 300 charges
+notice(2): Group "all" created containing 300 particles
+Initial box dimension: 3
+['C-C']
+-----
+You are using tree neighbor lists. Please cite the following:
+* M P Howard, J A Anderson, A Nikoubashman, S C Glotzer, and A Z
+  Panagiotopoulos. "Efficient neighbor list calculation for molecular simulation
+  of colloidal systems using graphics processing units", Computer Physics
+  Communications 203 (2016) 45--52
+-----
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 300
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 10.0
+self.AB_interaction 1.0
+self.AC_interaction 1.0
+self.BC_interaction 1.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+notice(2): integrate.langevin/bd is using specified gamma values
+** starting run **
+Time 00:00:02 | Step 50000 / 50000 | TPS 17745 | ETA 00:00:00
+Average TPS: 17743.4
+---------
+-- Neighborlist stats:
+812 normal updates / 500 forced updates / 0 dangerous updates
+n_neigh_min: 0 / n_neigh_max: 107 / n_neigh_avg: 48.0467
+shortest rebuild period: 15
+** run complete **
+Initial box dimension: Box: Lx=6.723040605915666 Ly=6.723040605915666 Lz=6.723040605915666 xy=0.0 xz=0.0 yz=0.0 dimensions=3
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <acceleration> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 300 positions at timestep 50000
+notice(2): 300 images
+notice(2): 300 velocities
+notice(2): 300 masses
+notice(2): 300 diameters
+notice(2): 3 particle types
+notice(2): 300 particle body values
+notice(2): 108 bonds
+notice(2): 300 charges
+notice(2): 300 orientations
+notice(2): 300 moments of inertia
+notice(2): 300 angular moments
+notice(2): Group "all" created containing 300 particles
+==============Setting up MIXING run=================
+-----
+You are using tree neighbor lists. Please cite the following:
+* M P Howard, J A Anderson, A Nikoubashman, S C Glotzer, and A Z
+  Panagiotopoulos. "Efficient neighbor list calculation for molecular simulation
+  of colloidal systems using graphics processing units", Computer Physics
+  Communications 203 (2016) 45--52
+-----
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 300
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 10.0
+self.AB_interaction 1.0
+self.AC_interaction 1.0
+self.BC_interaction 1.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+========= MIXING dt: 0.0001 =============
+Configuring outputs. output_dir: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding
+log_write: 100 dcd_write: 100
+quantities being logged: ['volume', 'momentum', 'potential_energy', 'kinetic_energy', 'temperature', 'pressure', 'pair_dpdlj_energy', 'bond_harmonic_energy']
+** starting run **
+Time 00:00:00 | Step 51000 / 51000 | TPS 1014.49 | ETA 00:00:00
+Average TPS: 1014.23
+---------
+-- Neighborlist stats:
+29 normal updates / 11 forced updates / 0 dangerous updates
+n_neigh_min: 0 / n_neigh_max: 101 / n_neigh_avg: 50.0967
+shortest rebuild period: 19
+** run complete **
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding/mixed.hoomdxml...
+notice(2): Parser for node <acceleration> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 300 positions at timestep 51000
+notice(2): 300 images
+notice(2): 300 velocities
+notice(2): 300 masses
+notice(2): 300 diameters
+notice(2): 3 particle types
+notice(2): 300 particle body values
+notice(2): 108 bonds
+notice(2): 300 charges
+notice(2): 300 orientations
+notice(2): 300 moments of inertia
+notice(2): 300 angular moments
+notice(2): Group "all" created containing 300 particles
+Running MD for shrunk_freud_bonding
+-----
+You are using tree neighbor lists. Please cite the following:
+* M P Howard, J A Anderson, A Nikoubashman, S C Glotzer, and A Z
+  Panagiotopoulos. "Efficient neighbor list calculation for molecular simulation
+  of colloidal systems using graphics processing units", Computer Physics
+  Communications 203 (2016) 45--52
+-----
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 300
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 10.0
+self.AB_interaction 1.0
+self.AC_interaction 1.0
+self.BC_interaction 1.0
+self.gamma 4.5
+========= CURING TEMPERATURE: <hoomd.variant.linear_interp object at 0x7fff8b5d9630> =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+========= CURING dt: 0.01 =============
+#######################<class 'bool'>##########################
+Configuring outputs. output_dir: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding
+log_write: 100 dcd_write: 100
+quantities being logged: ['volume', 'momentum', 'potential_energy', 'kinetic_energy', 'temperature', 'pressure', 'bond_percent(A-B)', 'bonds_per_step(A-B)', 'pair_dpdlj_energy', 'bond_harmonic_energy']
+notice(2): Group "a-particles" created containing 60 particles
+notice(2): Group "b-particles" created containing 120 particles
+notice(2): Group "c-particles" created containing 120 particles
+#### WARNING: no msd groups specified. Skipping msd logging!
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdlj0/shrunk_freud_bonding/mixed.hoomdxml...
+notice(2): Parser for node <acceleration> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 300 positions at timestep 51000
+notice(2): 300 images
+notice(2): 300 velocities
+notice(2): 300 masses
+notice(2): 300 diameters
+notice(2): 3 particle types
+notice(2): 300 particle body values
+notice(2): 108 bonds
+notice(2): 300 charges
+notice(2): 300 orientations
+notice(2): 300 moments of inertia
+notice(2): 300 angular moments
+Reset the system temperature to 2.0 kT after mixing
+md time: 50000.0
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 300
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+*Warning*: The static argument to hoomd.dump.gsd is deprecated, use dynamic instead.
+*Warning*: Particle number change but group is static. Create group with update=True if it should be updated.
+This warning is printed only once.
+*Warning*: Particle number change but group is static. Create group with update=True if it should be updated.
+This warning is printed only once.
+*Warning*: Particle number change but group is static. Create group with update=True if it should be updated.
+This warning is printed only once.
+**ERROR**: nlist.tree(): Particle 163 is out of bounds (x: -368349, y: 1.00291e+06, z: -113748, fx: -54788.5, fy: 149176, fz:-16918.7)
+_______________ TestDyBondBonding.test_epoxy_sim_dybond_dpdfene ________________
+
+self = <test_epoxy_sim_dybond.TestDyBondBonding object at 0x7fff8b5dea20>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdfene0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_epoxy_sim_dybond_dpdfene(self,  tmpdir):
+        """
+            Here we are doing regression testing for the new bonding routine that operates and the mbuild initial structure
+            whose volume is shrunk to a density of 3.0
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        from epoxpy.abc_type_epoxy_simulation import ABCTypeEpoxySimulation
+        import epoxpy.abc_type_epoxy_dpdfene_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+        import numpy as np
+    
+        random.seed(1020)
+    
+        mix_time = 1e3
+        mix_kt = 2.0
+        cure_kt = 2.0
+        time_scale = 1
+        n_mul = 6
+        n_part = n_mul * 50
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=mix_kt, initial_time=mix_time)
+        type_A_md_temp_profile.add_state_point(500 * time_scale, cure_kt)
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDFENESimulation(sim_name, mix_time=mix_time, mix_kt=mix_kt,
+                                               temp_prof=type_A_md_temp_profile,
+                                               bond=True, n_mul=n_mul, shrink=True,
+                                               shrink_time=5e4,
+                                               mix_dt=1e-4,
+                                               md_dt=1e-2,
+                                               output_dir=out_dir,
+                                               use_dybond_plugin=True)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_dybond.py:550: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/abc_type_epoxy_simulation.py:219: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 50000.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error in bond calculation
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdfene0/shrunk_freud_bonding
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+Packing 60 A particles, 120 B particles and 12 C10s ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_dybond_dpdfene0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 300 positions at timestep 0
+notice(2): 300 masses
+notice(2): 3 particle types
+notice(2): 108 bonds
+notice(2): 300 charges
+notice(2): Group "all" created containing 300 particles
+Initial box dimension: 3
+['C-C']
+-----
+You are using tree neighbor lists. Please cite the following:
+* M P Howard, J A Anderson, A Nikoubashman, S C Glotzer, and A Z
+  Panagiotopoulos. "Efficient neighbor list calculation for molecular simulation
+  of colloidal systems using graphics processing units", Computer Physics
+  Communications 203 (2016) 45--52
+-----
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 300
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 1.0
+self.AB_interaction 1.0
+self.AC_interaction 1.0
+self.BC_interaction 1.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+notice(2): integrate.langevin/bd is using specified gamma values
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: bond.fene: bond out of bounds
+
+___________________ TestWOBonding.test_epoxy_sim_wo_bonding ____________________
+
+self = <test_epoxy_sim_wo_bonding.TestWOBonding object at 0x7fffe8128080>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_wo_bonding0')
+
+    @pytest.mark.long
+    def test_epoxy_sim_wo_bonding(self,  tmpdir):
+        import epoxpy.abc_type_epoxy_dpd_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import gsd.hoomd
+    
+        random.seed(1020)
+        print('\n# Test: test_epoxy_sim_wo_bonding')
+    
+        mix_time = 3e4
+        mix_kt = 2.0
+        cure_kt = 2.0
+        time_scale = 100
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=mix_kt, initial_time=mix_time)
+        type_A_md_temp_profile.add_state_point(500 * time_scale, cure_kt)
+    
+        sim_name = 'wo_bonding'
+        out_dir = str(tmpdir)
+        exclude_mixing_in_output = True
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDSimulation(sim_name,
+                                                  mix_time=mix_time,
+                                                  mix_kt=mix_kt,
+                                                  temp_prof=type_A_md_temp_profile,
+                                                  output_dir=out_dir,
+                                                  n_mul=2.0,
+                                                  exclude_mixing_in_output=exclude_mixing_in_output,
+                                                  shrink=False)
+    
+>       myEpoxySim.execute()
+
+tests/test_epoxy_sim_wo_bonding.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/abc_type_epoxy_simulation.py:219: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 1000000.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error allocating GPUArray.
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+
+# Test: test_epoxy_sim_wo_bonding
+kwargs passed into Simulation: {'exclude_mixing_in_output': True, 'shrink': False}
+Executing wo_bonding
+Initializing wo_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_wo_bonding0/wo_bonding
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+shrink=False is deprecated.
+Packing 20 A particles, 40 B particles and 4 C10s ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_epoxy_sim_wo_bonding0/wo_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 100 positions at timestep 0
+notice(2): 100 masses
+notice(2): 3 particle types
+notice(2): 36 bonds
+notice(2): 100 charges
+notice(2): Group "all" created containing 100 particles
+Initial box dimension: 3
+['C-C']
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 100
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 25.0
+self.AB_interaction 35.0
+self.AC_interaction 35.0
+self.BC_interaction 35.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+notice(2): integrate.langevin/bd is using specified gamma values
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: Error allocating aligned memory
+_________________________ TestSimRestart.test_restart __________________________
+
+self = <test_restart.TestSimRestart object at 0x7fffe8311160>
+tmpdir = local('/tmp/pytest-of-jhinman/pytest-22/test_restart0')
+
+    @pytest.mark.long
+    @pytest.mark.dybond_bonding
+    def test_restart(self,  tmpdir):
+        """
+            Here we are doing regression testing for the new bonding routine that operates and the mbuild initial structure
+            whose volume is shrunk to a density of 3.0
+            :param datadir:
+            :param tmpdir:
+            :return:
+            """
+        from epoxpy.abc_type_epoxy_simulation import ABCTypeEpoxySimulation
+        import epoxpy.abc_type_epoxy_dpd_simulation as es
+        import epoxpy.temperature_profile_builder as tpb
+        import random
+        import os
+        import numpy as np
+        import gsd.hoomd
+        #from cme_utils.analyze import bond_dist
+    
+        random.seed(1020)
+    
+        mix_time = 3e2
+        mix_kt = 2.0
+        cure_kt = 4.0
+        t1 = 25000
+        t2 = 25000
+        total_time = t1+t2
+    
+        type_A_md_temp_profile = tpb.LinearTemperatureProfileBuilder(initial_temperature=cure_kt, initial_time=0)
+        type_A_md_temp_profile.add_state_point(t1, cure_kt)
+        n_mul = 1.0
+        n_part = n_mul * 13
+    
+        out_dir = str(tmpdir)
+        sim_name = 'shrunk_freud_bonding'
+        out_dir = os.path.join(out_dir, sim_name)
+        myEpoxySim = es.ABCTypeEpoxyDPDSimulation(sim_name,
+                                                  mix_time=mix_time,
+                                                  mix_kt=mix_kt,
+                                                  temp_prof=type_A_md_temp_profile,
+                                                  bond=True,
+                                                  n_mul=n_mul,
+                                                  bond_period=1,
+                                                  percent_bonds_per_step=100.0,
+                                                  activation_energy=0.005,
+                                                  sec_bond_weight=0.01,
+                                                  shrink=True,
+                                                  shrink_time=1e2,
+                                                  output_dir=out_dir,
+                                                  use_dybond_plugin=True,
+                                                  num_a=1,
+                                                  num_b=2,
+                                                  num_c10=1)
+    
+>       myEpoxySim.execute()
+
+tests/test_restart.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+epoxpy/epoxy_simulation.py:363: in execute
+    self.initialize()
+epoxpy/epoxy_simulation.py:311: in initialize
+    self.system = self.set_initial_structure()
+epoxpy/abc_type_epoxy_simulation.py:219: in set_initial_structure
+    hoomd.run(self.shrink_time)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tsteps = 100.0, profile = False, limit_hours = 0.0, limit_multiple = 1
+callback_period = 0, callback = None, quiet = False
+
+    def run(tsteps, profile=False, limit_hours=None, limit_multiple=1, callback_period=0, callback=None, quiet=False):
+        """ Runs the simulation for a given number of time steps.
+    
+        Args:
+    
+            tsteps (int): Number of time steps to advance the simulation.
+            profile (bool): Set to True to enable high level profiling output at the end of the run.
+            profile limit_hours (float): If not None, limit this run to a given number of hours.
+            limit_multiple (int): When stopping the run due to walltime limits, only stop when the time step is a
+                                  multiple of limit_multiple.
+            callback (callable): Sets a Python function to be called regularly during a run.
+            callback_period (int): Sets the period, in time steps, between calls made to ``callback``.
+            quiet (bool): Set to True to disable the status information printed to the screen by the run.
+    
+        Example::
+    
+                hoomd.run(10)
+                hoomd.run(10e6, limit_hours=1.0/3600.0, limit_multiple=10)
+                hoomd.run(10, profile=True)
+                hoomd.run(10, quiet=True)
+                hoomd.run(10, callback_period=2, callback=lambda step: print(step))
+    
+        Execute the :py:func:`run()` command to advance the simulation forward in time.
+        During the run, all previously specified analyzers, updaters and the integrator
+        are executed at the specified regular periods.
+    
+        After :py:func:`run()` completes, you may change parameters of the simulation
+        and continue the simulation by executing :py:func:`run()` again. Time steps are added
+        cumulatively, so calling ``run(1000)`` and then ``run(2000)`` would run the simulation
+        up to time step 3000.
+    
+        :py:func:`run()` cannot be executed before the system is initialized. In most
+        cases, :py:func:`run()` should only be called after after pair forces, bond forces,
+        and an integrator are specified.
+    
+        When ``profile`` is **True**, a detailed breakdown of how much time was spent in each
+        portion of the calculation is printed at the end of the run. Collecting this timing information
+        slows the simulation.
+    
+        **Wallclock limited runs:**
+    
+        There are a number of mechanisms to limit the time of a running hoomd script. Use these in a job
+        queuing environment to allow your script to cleanly exit before reaching the system enforced walltime limit.
+    
+        Force :py:func:`run()` to end only on time steps that are a multiple of ``limit_mulitple``. Set this to the period at which you
+        dump restart files so that you always end a :py:func:`run()` cleanly at a point where you can restart from. Use
+        ``phase=0`` on logs, file dumps, and other periodic tasks. With ``phase=0``, these tasks will continue on the same
+        sequence regardless of the restart period.
+    
+        Set the environment variable ``HOOMD_WALLTIME_STOP`` prior to starting a hoomd script to stop the :py:func:`run()` at a given wall
+        clock time. :py:func:`run()` monitors performance and tries to ensure that it will end *before* ``HOOMD_WALLTIME_STOP``. This
+        environment variable works even with multiple stages of runs in a script (use :py:func:`run_upto()`. Set the variable to
+        a unix epoch time. For example in a job script that should run 12 hours, set ``HOOMD_WALLTIME_STOP`` to 12 hours from
+        now, minus 10 minutes to allow for job cleanup::
+    
+            export HOOMD_WALLTIME_STOP=$((`date +%s` + 12 * 3600 - 10 * 60))
+    
+        When using ``HOOMD_WALLTIME_STOP``, :py:func:`run()` will throw the exception ``WalltimeLimitReached`` if it exits due to the walltime
+        limit.
+    
+        ``limit_hours`` is another way to limit the length of a :py:func:`run()`. Set it to a number of hours (use fractional values for
+        minutes) to limit this particular :py:func:`run()` to that length of time. This is less useful than ``HOOMD_WALLTIME_STOP`` in a
+        job queuing environment.
+    
+        **Callbacks:**
+    
+        If ``callback`` is set to a Python function then this function will be called regularly
+        at ``callback_period`` intervals. The callback function must receive one integer as argument
+        and can return an integer. The argument passed to the callback is the current time step number.
+        If the callback function returns a negative number, the run is immediately aborted.
+    
+        If ``callback_period`` is set to 0 (the default) then the callback is only called
+        once at the end of the run. Otherwise the callback is executed whenever the current
+        time step number is a multiple of ``callback_period``.
+        """
+    
+        if not quiet:
+            util.print_status_line();
+        # check if initialization has occured
+        if not init.is_initialized():
+            context.msg.error("Cannot run before initialization\n");
+            raise RuntimeError('Error running');
+    
+        if context.current.integrator is None:
+            context.msg.warning("Starting a run without an integrator set");
+        else:
+            context.current.integrator.update_forces();
+            context.current.integrator.update_methods();
+            context.current.integrator.update_thermos();
+    
+        # update autotuner parameters
+        context.current.system.setAutotunerParams(context.options.autotuner_enable, int(context.options.autotuner_period));
+    
+        for logger in context.current.loggers:
+            logger.update_quantities();
+        context.current.system.enableProfiler(profile);
+        context.current.system.enableQuietRun(quiet);
+    
+        # update all user-defined neighbor lists
+        for nl in context.current.neighbor_lists:
+            nl.update_rcut()
+            nl.update_exclusions_defaults()
+    
+        # detect 0 hours remaining properly
+        if limit_hours == 0.0:
+            context.msg.warning("Requesting a run() with a 0 time limit, doing nothing.\n");
+            return;
+        if limit_hours is None:
+            limit_hours = 0.0
+    
+        if not quiet:
+            context.msg.notice(1, "** starting run **\n");
+>       context.current.system.run(int(tsteps), callback_period, callback, limit_hours, int(limit_multiple));
+E       RuntimeError: Error allocating GPUArray.
+
+../hoomd_blue/build/hoomd/__init__.py:194: RuntimeError
+----------------------------- Captured stdout call -----------------------------
+kwargs passed into Simulation: {'use_dybond_plugin': True, 'shrink': True}
+Executing shrunk_freud_bonding
+Initializing shrunk_freud_bonding
+Creating simulation folder: /tmp/pytest-of-jhinman/pytest-22/test_restart0/shrunk_freud_bonding
+========INITIAIZING STRUCTURE==========
+
+
+ ===USING MBUILD INIT=== 
+
+
+Packing 1 A particles, 2 B particles and 1 C10s ..
+notice(2): Reading /tmp/pytest-of-jhinman/pytest-22/test_restart0/shrunk_freud_bonding/initial.hoomdxml...
+notice(2): Parser for node <bond_coeffs> not defined, ignoring
+notice(2): Parser for node <angle_coeffs> not defined, ignoring
+notice(2): Parser for node <dihedral_coeffs> not defined, ignoring
+notice(2): --- hoomd_xml file read summary
+notice(2): 13 positions at timestep 0
+notice(2): 13 masses
+notice(2): 3 particle types
+notice(2): 9 bonds
+notice(2): 13 charges
+notice(2): Group "all" created containing 13 particles
+Initial box dimension: 3
+['C-C']
+notice(2): -- Neighborlist exclusion statistics -- :
+notice(2): Particles with 0 exclusions             : 13
+notice(2): Neighbors included by diameter          : no
+notice(2): Neighbors excluded when in the same body: no
+=============force fields parameters==============
+self.CC_bond_const 100
+self.CC_bond_dist 1
+self.AB_bond_const 100
+self.AB_bond_dist 1
+self.AA_interaction 25.0
+self.AB_interaction 35.0
+self.AC_interaction 35.0
+self.BC_interaction 35.0
+self.gamma 4.5
+========= MIXING TEMPERATURE: 2.0 =============
+-----
+You are using DPD. Please cite the following:
+* C L Phillips, J A Anderson, and S C Glotzer. "Pseudo-random number generation
+  for Brownian Dynamics and Dissipative Particle Dynamics simulations on GPU
+  devices", Journal of Computational Physics 230 (2011) 7191--7201
+-----
+notice(2): integrate.langevin/bd is using specified gamma values
+** starting run **
+----------------------------- Captured stderr call -----------------------------
+**ERROR**: Error allocating aligned memory
+
+----------- coverage: platform linux, python 3.5.5-final-0 -----------
+Coverage HTML written to dir codecoverage/
+
+========================== slowest 10 test durations ===========================
+27.89s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_lj_harmonic_npt
+14.83s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_lj_harmonic_with_enthalpy
+8.62s call     tests/test_epoxy_sim_wo_bonding.py::TestWOBonding::test_neat_toughener_lj_harmonic_langevin
+5.78s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_lj_harmonic_langevin
+4.80s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_dpdlj
+2.21s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dpd_with_enthalpy
+1.85s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_regression
+1.83s call     tests/test_epoxy_sim_wo_bonding.py::TestWOBonding::test_epoxy_sim_wo_bonding
+1.44s call     tests/test_restart.py::TestSimRestart::test_restart
+0.59s call     tests/test_epoxy_sim_dybond.py::TestDyBondBonding::test_epoxy_sim_dybond_dpdfene
+=============================== warnings summary ===============================
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/importlib/_bootstrap.py:222: RuntimeWarning: numpy.dtype size changed, may indicate binary incompatibility. Expected 96, got 88
+  return f(*args, **kwds)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140735534140888>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 2.2247, 4.6325,-4.2479), 0 bonds, id: 140735531581280>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_x is deprecated. Please use rotate(compound, theta, around=np.asarray([1, 0, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_y is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 1, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_z is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 0, 1]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140735618931960>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 5.4459, 27.0957,-15.6098), 0 bonds, id: 140737091344648>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140737091513816>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 2.2247, 4.6325,-4.2479), 0 bonds, id: 140737088070152>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140737092030136>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=(-1.2433,-3.4104,-2.1598), 0 bonds, id: 140737053871296>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_x is deprecated. Please use rotate(compound, theta, around=np.asarray([1, 0, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_y is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 1, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_z is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 0, 1]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140737054072960>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=(-20.7171,-17.1625, 29.1298), 0 bonds, id: 140737092165704>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_x is deprecated. Please use rotate(compound, theta, around=np.asarray([1, 0, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_y is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 1, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_z is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 0, 1]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140735537458760>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=(-3.0570,-23.2683, 22.5000), 0 bonds, id: 140737091680912>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140737089381096>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 3.3860, 2.7375, 3.7299), 0 bonds, id: 140737089874688>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140735531574552>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 3.3860, 2.7375, 3.7299), 0 bonds, id: 140735531612312>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140735537458760>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 2.2247, 4.6325,-4.2479), 0 bonds, id: 140737088072168>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_x is deprecated. Please use rotate(compound, theta, around=np.asarray([1, 0, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_y is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 1, 0]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate_around_z is deprecated. Please use rotate(compound, theta, around=np.asarray([0, 0, 1]))
+  warn(printed_message, DeprecationWarning)
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/utils/decorators.py:11: DeprecationWarning: rotate is deprecated. Please use Compound.rotate()
+  warn(printed_message, DeprecationWarning)
+
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 0.0000, 0.0000, 0.0000), 0 bonds, id: 140737060943632>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+/home/jhinman/.conda/envs/enterprise/lib/python3.5/site-packages/mbuild/compound.py:1768: UserWarning: Guessing that "<A pos=( 2.3328,-2.5328,-2.5328), 0 bonds, id: 140737149416616>" is element: "EP"
+  warn('Guessing that "{}" is element: "{}"'.format(atom, element))
+
+-- Docs: https://docs.pytest.org/en/latest/warnings.html
+============== 7 failed, 12 passed, 45 warnings in 72.30 seconds ===============
+DyBondUpdater::set_params bond type:A-B, A A, A_fun_group 4, B:B, B_fun_groups:2, Ea:1.000000, alpha:5.000000
+Total A-B type bonds possible: 200, 200.000000 bonds will be attempted per bond step
+Total bonds possible: 200
+Percentage of A-B type bonds made at the begining of simulation: 0.000000
+DyBondUpdater::set_params bond type:A-B, A A, A_fun_group 4, B:B, B_fun_groups:2, Ea:1.000000, alpha:5.000000
+Total A-B type bonds possible: 200, 0.005000 bonds will be attempted per bond step
+Total bonds possible: 200
+Percentage of A-B type bonds made at the begining of simulation: 0.000000
+DyBondUpdater::set_params bond type:A-B, A A, A_fun_group 4, B:B, B_fun_groups:2, Ea:1.000000, alpha:5.000000
+Total A-B type bonds possible: 240, 0.006000 bonds will be attempted per bond step
+Total bonds possible: 240
+Percentage of A-B type bonds made at the begining of simulation: 0.000000
+DyBondUpdater::set_params bond type:A-B, A A, A_fun_group 4, B:B, B_fun_groups:2, Ea:1.000000, alpha:5.000000
+Total A-B type bonds possible: 240, 0.006000 bonds will be attempted per bond step
+Total bonds possible: 240
+Percentage of A-B type bonds made at the begining of simulation: 0.000000
